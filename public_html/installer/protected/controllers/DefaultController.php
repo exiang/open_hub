@@ -1,6 +1,7 @@
 <?php
 
 use Symfony\Component\Yaml\Yaml;
+use Exiang\YsUtil\YsUtil;
 
 class DefaultController extends CController
 {
@@ -104,7 +105,7 @@ class DefaultController extends CController
 			$parsedDomainName = parse_url('https://' . $model->domainName);
 			$model->envs['CSRF_COOKIE'] = '.' . $parsedDomainName['host'];
 			$model->envs['REQUEST_HOST_INFO'] = 'https://' . $model->domainName;
-			$model->envs['BASE_API_URL'] = 'https://api-' . $model->domainName;
+			$model->envs['BASE_API_URL'] = 'https://api-' . $model->domainName . '/v1';
 
 			// connect
 			$model->envs['CONNECT_SECRET_KEY_API'] = 'b6YDWvZFvFW4leBap9GiiTBq4VRmfzznLJAekcCr';
@@ -162,7 +163,9 @@ class DefaultController extends CController
 			}
 
 			//echo $envBuffer;exit;
-			chmod($this->envFilePath, 0777);
+			if (file_exists($this->envFilePath)) {
+				chmod($this->envFilePath, 0777);
+			}
 			file_put_contents($this->envFilePath, $envBuffer);
 
 			$this->redirect(array('setupDb'));
@@ -174,6 +177,8 @@ class DefaultController extends CController
 	// load database sql
 	public function actionSetupDb()
 	{
+		set_time_limit(0);
+
 		$envs = array();
 		// load existing .envs into array
 		if (file_exists($this->envFilePath)) {
@@ -214,6 +219,8 @@ class DefaultController extends CController
 	// create admin account if not exists
 	public function actionDone()
 	{
+		set_time_limit(0);
+
 		$envs = array();
 		// load existing .envs into array
 		if (file_exists($this->envFilePath)) {

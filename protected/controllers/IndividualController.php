@@ -54,12 +54,14 @@ class IndividualController extends Controller
 				'actions' => array('overview', 'list', 'view', 'create', 'update', 'admin', 'getTagsBackend', 'merge', 'getIndividualNodes', 'doMerge', 'doMergeConfirmed',
 				'getIndividual2Emails', 'deleteIndividual2Email', 'addIndividual2Email', 'toggleIndividual2EmailStatus', 'requestJoinEmail', ),
 				'users' => array('@'),
-				'expression' => '$user->isSuperAdmin==true || $user->isAdmin==true',
+				// 'expression' => '$user->isSuperAdmin==true || $user->isAdmin==true',
+				'expression' => 'HUB::roleCheckerAction(Yii::app()->user->getState("rolesAssigned"), Yii::app()->controller)',
 			),
 			array('allow', // allow authenticated user to perform 'create', 'update', 'admin' and 'delete' actions
 				'actions' => array('overview', 'list', 'view', 'admin', 'getTagsBackend', 'getIndividual2Emails'),
 				'users' => array('@'),
-				'expression' => '$user->isEcosystem==true',
+				// 'expression' => '$user->isEcosystem==true',
+				'expression' => 'HUB::roleCheckerAction(Yii::app()->user->getState("rolesAssigned"), Yii::app()->controller)',
 			),
 			array('deny',  // deny all users
 				'users' => array('*'),
@@ -100,18 +102,18 @@ class IndividualController extends Controller
 		$actions = array();
 		$user = User::model()->findByPk(Yii::app()->user->id);
 
-		$activeServices = HUB::getAllActiveServices();
-		foreach ($activeServices as $service) {
+		$modules = YeeModule::getActiveParsableModules();
+		foreach ($modules as $moduleKey => $moduleParams) {
 			// for backend only
 			if (Yii::app()->user->accessBackend && $realm == 'backend') {
-				if (method_exists(Yii::app()->getModule($service->slug), 'getIndividualActions')) {
-					$actions = array_merge($actions, (array)Yii::app()->getModule($service->slug)->getIndividualActions($model, 'backend'));
+				if (method_exists(Yii::app()->getModule($moduleKey), 'getIndividualActions')) {
+					$actions = array_merge($actions, (array)Yii::app()->getModule($moduleKey)->getIndividualActions($model, 'backend'));
 				}
 			}
 			// for frontend only
 			if (Yii::app()->user->accessCpanel && $realm == 'cpanel') {
-				if (method_exists(Yii::app()->getModule($service->slug), 'getIndividualActions')) {
-					$actions = array_merge($actions, (array)Yii::app()->getModule($service->slug)->getIndividualActions($model, 'cpanel'));
+				if (method_exists(Yii::app()->getModule($moduleKey), 'getIndividualActions')) {
+					$actions = array_merge($actions, (array)Yii::app()->getModule($moduleKey)->getIndividualActions($model, 'cpanel'));
 				}
 			}
 		}
@@ -488,24 +490,25 @@ class IndividualController extends Controller
 	{
 		$tabs = array();
 
-		$services = HUB::getAllActiveServices();
-		foreach ($services as $service) {
-			if (method_exists(Yii::app()->getModule($service->slug), 'getIndividualViewTabs')) {
-				$tabs = array_merge($tabs, (array)Yii::app()->getModule($service->slug)->getIndividualViewTabs($model, $realm));
+		$modules = YeeModule::getActiveParsableModules();
+		foreach ($modules as $moduleKey => $moduleParams) {
+			if (method_exists(Yii::app()->getModule($moduleKey), 'getIndividualViewTabs')) {
+				$tabs = array_merge($tabs, (array) Yii::app()->getModule($moduleKey)->getIndividualViewTabs($model, $realm));
 			}
 		}
 
 		if ($realm == 'backend') {
 			$tabs['individual'][] = array(
 				'key' => 'organization',
-				'title' => 'Company',
+				'title' => Yii::t('backend', 'Organization'),
 				'viewPath' => 'views.individualOrganization.backend._view-individual-organization'
 			);
 		}
 
 		ksort($tabs);
 
-		if (Yii::app()->user->isDeveloper) {
+		// if (Yii::app()->user->isDeveloper) {
+		if (HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'custom', 'action' => (object)['id' => 'developer']])) {
 			$tabs['individual'][] = array(
 				'key' => 'meta',
 				'title' => 'Meta <span class="label label-warning">dev</span>',

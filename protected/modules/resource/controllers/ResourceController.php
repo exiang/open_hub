@@ -48,7 +48,8 @@ class ResourceController extends Controller
 				'allow', // allow authenticated user to perform 'create', 'update', 'admin' and 'delete' actions
 				'actions' => array('delete', 'admin', 'getTagsBackend'),
 				'users' => array('@'),
-				'expression' => '$user->isSuperAdmin==true || $user->isAdmin==true',
+				// 'expression' => '$user->isSuperAdmin==true || $user->isAdmin==true',
+				'expression' => 'HUB::roleCheckerAction(Yii::app()->user->getState("rolesAssigned"), Yii::app()->controller)',
 			),
 			array(
 				'allow', // allow authenticated user to perform 'create', 'update', 'admin' and 'delete' actions
@@ -80,7 +81,7 @@ class ResourceController extends Controller
 
 			$this->layout = 'layouts.cpanel';
 			$this->layoutParams['bodyClass'] = str_replace('gray-bg', 'white-bg', $this->layoutParams['bodyClass']);
-			$this->cpanelMenuInterface = 'cpanelNavCompanyInformation';
+			$this->cpanelMenuInterface = 'cpanelNavOrganizationInformation';
 			$this->customParse = $org->id;
 			$this->activeMenuCpanel = 'resource';
 		}
@@ -102,18 +103,18 @@ class ResourceController extends Controller
 		$actions = array();
 		$user = User::model()->findByPk(Yii::app()->user->id);
 
-		$activeServices = HUB::getAllActiveServices();
-		foreach ($activeServices as $service) {
+		$modules = YeeModule::getActiveParsableModules();
+		foreach ($modules as $moduleKey => $moduleParams) {
 			// for backend only
 			if (Yii::app()->user->accessBackend && $realm == 'backend') {
-				if (method_exists(Yii::app()->getModule($service->slug), 'getIndividualActions')) {
-					$actions = array_merge($actions, (array) Yii::app()->getModule($service->slug)->getIndividualActions($model, 'backend'));
+				if (method_exists(Yii::app()->getModule($moduleKey), 'getIndividualActions')) {
+					$actions = array_merge($actions, (array) Yii::app()->getModule($moduleKey)->getIndividualActions($model, 'backend'));
 				}
 			}
 			// for frontend only
 			if (Yii::app()->user->accessCpanel && $realm == 'cpanel') {
-				if (method_exists(Yii::app()->getModule($service->slug), 'getIndividualActions')) {
-					$actions = array_merge($actions, (array) Yii::app()->getModule($service->slug)->getIndividualActions($model, 'cpanel'));
+				if (method_exists(Yii::app()->getModule($moduleKey), 'getIndividualActions')) {
+					$actions = array_merge($actions, (array) Yii::app()->getModule($moduleKey)->getIndividualActions($model, 'cpanel'));
 				}
 			}
 		}
@@ -148,7 +149,7 @@ class ResourceController extends Controller
 
 			$this->layout = 'layouts.cpanel';
 			$this->layoutParams['bodyClass'] = str_replace('gray-bg', 'white-bg', $this->layoutParams['bodyClass']);
-			$this->cpanelMenuInterface = 'cpanelNavCompanyInformation';
+			$this->cpanelMenuInterface = 'cpanelNavOrganizationInformation';
 			$this->customParse = $org->id;
 			$this->activeMenuCpanel = 'resource';
 		}
@@ -219,7 +220,7 @@ class ResourceController extends Controller
 
 			$this->layout = 'layouts.cpanel';
 			$this->layoutParams['bodyClass'] = str_replace('gray-bg', 'white-bg', $this->layoutParams['bodyClass']);
-			$this->cpanelMenuInterface = 'cpanelNavCompanyInformation';
+			$this->cpanelMenuInterface = 'cpanelNavOrganizationInformation';
 			$this->customParse = $org->id;
 			$this->activeMenuCpanel = 'resource';
 		}
@@ -311,7 +312,7 @@ class ResourceController extends Controller
 
 			$this->layout = 'layouts.cpanel';
 			$this->layoutParams['bodyClass'] = str_replace('gray-bg', 'white-bg', $this->layoutParams['bodyClass']);
-			$this->cpanelMenuInterface = 'cpanelNavCompanyInformation';
+			$this->cpanelMenuInterface = 'cpanelNavOrganizationInformation';
 			$this->customParse = $org->id;
 			$this->activeMenuCpanel = 'resource';
 		}
@@ -450,10 +451,10 @@ class ResourceController extends Controller
 	{
 		$tabs = array();
 
-		$services = HUB::getAllActiveServices();
-		foreach ($services as $service) {
-			if (method_exists(Yii::app()->getModule($service->slug), 'getResourceViewTabs')) {
-				$tabs = array_merge($tabs, (array) Yii::app()->getModule($service->slug)->getResourceViewTabs($model, $realm));
+		$modules = YeeModule::getActiveParsableModules();
+		foreach ($modules as $moduleKey => $moduleParams) {
+			if (method_exists(Yii::app()->getModule($moduleKey), 'getResourceViewTabs')) {
+				$tabs = array_merge($tabs, (array) Yii::app()->getModule($moduleKey)->getResourceViewTabs($model, $realm));
 			}
 		}
 
@@ -467,7 +468,8 @@ class ResourceController extends Controller
 
 		ksort($tabs);
 
-		if (Yii::app()->user->isDeveloper) {
+		// if (Yii::app()->user->isDeveloper) {
+		if (HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'custom', 'action' => (object)['id' => 'developer']])) {
 			$tabs['resource'][] = array(
 				'key' => 'meta',
 				'title' => 'Meta <span class="label label-warning">dev</span>',

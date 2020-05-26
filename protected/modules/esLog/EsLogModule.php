@@ -59,6 +59,12 @@ class EsLogModule extends WebModule
 					'viewPath' => 'modules.esLog.views.backend._view-organization-esLog'
 				);
 			}
+		} elseif ($realm == 'cpanel') {
+			$tabs['esLog'][] = array(
+				'key' => 'esLog',
+				'title' => 'Log',
+				'viewPath' => 'modules.esLog.views.cpanel._view-organization-esLog'
+			);
 		}
 
 		return $tabs;

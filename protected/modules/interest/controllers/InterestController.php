@@ -50,9 +50,11 @@ class InterestController extends Controller
 			),
 			array(
 				'allow', // allow authenticated user to perform 'create', 'update', 'admin' and 'delete' actions
-				'actions' => array('list', 'view', 'create', 'update', 'admin', 'delete'),
+				// 'actions' => array('list', 'view', 'create', 'update', 'admin', 'delete'),
+				'actions' => array('list', 'view', 'admin', 'delete'),
 				'users' => array('@'),
-				'expression' => '$user->isSuperAdmin==true || $user->isAdmin==true',
+				// 'expression' => '$user->isSuperAdmin==true || $user->isAdmin==true',
+				'expression' => 'HUB::roleCheckerAction(Yii::app()->user->getState("rolesAssigned"), Yii::app()->controller)',
 			),
 			array(
 				'deny',  // deny all users
@@ -132,7 +134,7 @@ class InterestController extends Controller
 
 		$this->layout = 'layouts.cpanel'; //default layout for cpanel
 		$this->layoutParams['bodyClass'] = str_replace('gray-bg', 'white-bg', $this->layoutParams['bodyClass']);
-		$this->cpanelMenuInterface = 'cpanelNavSetting'; //cpanel menu interface type ex. cpanelNavDashboard, cpanelNavSetting, cpanelNavCompany, cpanelNavCompanyInformation
+		$this->cpanelMenuInterface = 'cpanelNavSetting'; //cpanel menu interface type ex. cpanelNavDashboard, cpanelNavSetting, cpanelNavOrganization, cpanelNavOrganizationInformation
 		$this->activeMenuCpanel = 'interest'; //active menu name based on NameModule.php getNavItems() active attribute
 
 		if (isset($_POST['Interest'])) {

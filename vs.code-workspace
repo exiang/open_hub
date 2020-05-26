@@ -7,14 +7,15 @@
 			"path": "../open_hub"
 		},
 		{
-			"path": "/Users/yeesiang/docker/magic_hub_docker/magic_hub_modules"
+			"path": "../magic_hub_modules"
 		}
 	],
 	"settings": {
-		"editor.formatOnSave": false,
+		"editor.formatOnSave": true,
 		"php-cs-fixer.executablePath": "php-cs-fixer",
-		"php-cs-fixer.config": ".vscode/.php_cs",
-		"php-cs-fixer.onsave": true,
+		"php-cs-fixer.config": ".php_cs",
+		"php-cs-fixer.onsave": false,
+		"php-cs-fixer.documentFormattingProvider": true,
 		"php-cs-fixer.autoFixBySemicolon": true,
 		"php-cs-fixer.allowRisky": false,
 	}

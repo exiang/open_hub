@@ -178,14 +178,14 @@ class Organization extends OrganizationBase
 	public function attributeLabels()
 	{
 		$return = parent::attributeLabels();
-		$return['title'] = Yii::t('app', 'Company Name');
+		$return['title'] = Yii::t('app', 'Organization Name');
 		$return['company_number'] = Yii::t('app', 'Company Reg. No');
 		$return['text_oneliner'] = Yii::t('app', 'One Liner');
-		$return['text_short_description'] = Yii::t('app', 'Company Description');
+		$return['text_short_description'] = Yii::t('app', 'Organization Description');
 		$return['image_logo'] = Yii::t('app', 'Logo Image');
 		$return['url_website'] = Yii::t('app', 'Website URL');
-		$return['email_contact'] = Yii::t('app', 'Company Email');
-		$return['legalform_id'] = Yii::t('app', 'Type of Company');
+		$return['email_contact'] = Yii::t('app', 'Organization Email');
+		$return['legalform_id'] = Yii::t('app', 'Type of Organization');
 		$return['inputImpacts'] = Yii::t('app', 'Impacts');
 		$return['inputSdgs'] = Yii::t('app', 'Sdgs');
 		$return['inputPersonas'] = Yii::t('app', 'Personas');
@@ -1125,32 +1125,32 @@ class Organization extends OrganizationBase
 		}
 
 		/*if (!empty($htmlOptions['params']) && !empty($htmlOptions['params']['mode']) && $htmlOptions['params']['mode'] == 'ideaPartnerCode') {
-			$sql = sprintf("SELECT o.code as `key`, o.title as `title` FROM `organization` as o 
+			$sql = sprintf("SELECT o.code as `key`, o.title as `title` FROM `organization` as o
 
 			INNER JOIN `meta_structure` as ms1 on ms1.ref_table='organization'
-            INNER JOIN `meta_item` as mi1 on mi1.meta_structure_id=ms1.id 
+			INNER JOIN `meta_item` as mi1 on mi1.meta_structure_id=ms1.id
 
 			INNER JOIN `meta_structure` as ms2 on ms2.ref_table='organization'
-            INNER JOIN `meta_item` as mi2 on mi2.meta_structure_id=ms2.id 
-			WHERE 
-            (ms1.code='Organization-idea-isPartner' AND mi1.value=1 AND mi1.ref_id=o.id) AND
-            (ms2.code='Organization-idea-isApplyPartner' AND mi2.value!=1 AND mi2.ref_id=o.id)
-         	AND o.is_active=1
+			INNER JOIN `meta_item` as mi2 on mi2.meta_structure_id=ms2.id
+			WHERE
+			(ms1.code='Organization-idea-isPartner' AND mi1.value=1 AND mi1.ref_id=o.id) AND
+			(ms2.code='Organization-idea-isApplyPartner' AND mi2.value!=1 AND mi2.ref_id=o.id)
+			 AND o.is_active=1
 			GROUP BY o.id ORDER BY o.title ASC");
 
 			$result = Yii::app()->db->createCommand($sql)->queryAll();
 		} elseif (!empty($htmlOptions['params']) && !empty($htmlOptions['params']['mode']) && $htmlOptions['params']['mode'] == 'ideaEnterpriseCode') {
-			$sql = sprintf("SELECT o.code as `key`, o.title as `title` FROM `organization` as o 
+			$sql = sprintf("SELECT o.code as `key`, o.title as `title` FROM `organization` as o
 
 			INNER JOIN `meta_structure` as ms1 on ms1.ref_table='organization'
-            INNER JOIN `meta_item` as mi1 on mi1.meta_structure_id=ms1.id 
+			INNER JOIN `meta_item` as mi1 on mi1.meta_structure_id=ms1.id
 
 			INNER JOIN `meta_structure` as ms2 on ms2.ref_table='organization'
-            INNER JOIN `meta_item` as mi2 on mi2.meta_structure_id=ms2.id 
-			WHERE 
-            (ms1.code='Organization-idea-isEnterprise' AND mi1.value=1 AND mi1.ref_id=o.id) AND
-            (ms2.code='Organization-idea-isApplyEnterprise' AND mi2.value!=1 AND mi2.ref_id=o.id)
-         	AND o.is_active=1
+			INNER JOIN `meta_item` as mi2 on mi2.meta_structure_id=ms2.id
+			WHERE
+			(ms1.code='Organization-idea-isEnterprise' AND mi1.value=1 AND mi1.ref_id=o.id) AND
+			(ms2.code='Organization-idea-isApplyEnterprise' AND mi2.value!=1 AND mi2.ref_id=o.id)
+			 AND o.is_active=1
 			GROUP BY o.id ORDER BY o.title ASC");
 
 			$result = Yii::app()->db->createCommand($sql)->queryAll();
@@ -1185,7 +1185,7 @@ class Organization extends OrganizationBase
 		if (!empty($this->title)) {
 			$score += 20;
 		} else {
-			$result['check']['title'] = Yii::t('app', 'Company Name');
+			$result['check']['title'] = Yii::t('app', 'Organization Name');
 		}
 
 		if (!empty($this->text_oneliner)) {
@@ -1209,13 +1209,13 @@ class Organization extends OrganizationBase
 		if (!empty($this->email_contact)) {
 			$score += 15;
 		} else {
-			$result['check']['email_contact'] = Yii::t('app', 'Company Email');
+			$result['check']['email_contact'] = Yii::t('app', 'Organization Email');
 		}
 
 		if (!empty($this->text_short_description)) {
 			$score += 15;
 		} else {
-			$result['check']['text_short_description'] = Yii::t('app', 'Company Description');
+			$result['check']['text_short_description'] = Yii::t('app', 'Organization Description');
 		}
 
 		// industries
@@ -1239,9 +1239,15 @@ class Organization extends OrganizationBase
 			$this->address_line1 = $addressParts['line1'];
 			$this->address_line2 = $addressParts['line2'];
 			$this->address_zip = $addressParts['zipcode'];
-			if(!empty($addressParts['city'])) $this->address_city = $addressParts['city'];
-			if(!empty($addressParts['state'])) $this->address_state = $addressParts['state'];
-			if(!empty($addressParts['countryCode'])) $this->address_country_code = $addressParts['countryCode'];
+			if (!empty($addressParts['city'])) {
+				$this->address_city = $addressParts['city'];
+			}
+			if (!empty($addressParts['state'])) {
+				$this->address_state = $addressParts['state'];
+			}
+			if (!empty($addressParts['countryCode'])) {
+				$this->address_country_code = $addressParts['countryCode'];
+			}
 			$this->setLatLongAddress(array($addressParts['lat'], $addressParts['lng']));
 		}
 	}

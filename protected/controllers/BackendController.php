@@ -46,7 +46,8 @@ class BackendController extends Controller
 			array('allow', // allow admin user to sync local account to connect
 				'actions' => array('connect', 'connectConfirmed'),
 				'users' => array('@'),
-				'expression' => '$user->isDeveloper==true || $user->isSuperAdmin==true ',
+				// 'expression' => '$user->isDeveloper==true || $user->isSuperAdmin==true ',
+				'expression' => 'HUB::roleCheckerAction(Yii::app()->user->getState("rolesAssigned"), Yii::app()->controller)',
 			),
 			array('allow',
 				'actions' => array('index', 'login'),
@@ -122,9 +123,8 @@ class BackendController extends Controller
 
 		// check list of module required upgrade
 		$countModule2Upgrade = YeeModule::countModuleCanUpgrade();
-		if($countModule2Upgrade>0)
-		{
-			Notice::flash(Yii::t('backend', '<a href="{url}">{n} module needs to upgrade now!</a>|<a href="{url}">{n} modules need to upgrade now!</a>', array($countModule2Upgrade, '{url}'=>$this->createUrl('/sys/module/admin'))), Notice_INFO);
+		if ($countModule2Upgrade > 0) {
+			Notice::flash(Yii::t('backend', '<a href="{url}">{n} module needs to upgrade now!</a>|<a href="{url}">{n} modules need to upgrade now!</a>', array($countModule2Upgrade, '{url}' => $this->createUrl('/sys/module/admin'))), Notice_INFO);
 		}
 
 		$stat['totalUsers'] = User::model()->countByAttributes(array('is_active' => 1));
@@ -137,18 +137,21 @@ class BackendController extends Controller
 		// todo: select total registration base on active and not cancelled events
 		$stat['totalEventRegistrations'] = Yii::app()->db->createCommand('SELECT COUNT(er.id) FROM event_registration as er LEFT JOIN event as e ON er.event_code=e.code WHERE e.is_active=1')->queryScalar();
 
-		$tabs = array();
+		$notices = $tabs = array();
 		$model = null;
 		$modules = YeeModule::getActiveParsableModules();
 		foreach ($modules as $moduleKey => $moduleParams) {
 			if (method_exists(Yii::app()->getModule($moduleKey), 'getDashboardViewTabs')) {
 				$tabs = array_merge($tabs, (array) Yii::app()->getModule($moduleKey)->getDashboardViewTabs($model, $realm));
 			}
+			if (method_exists(Yii::app()->getModule($moduleKey), 'getDashboardNotices')) {
+				$notices = array_merge($notices, (array) Yii::app()->getModule($moduleKey)->getDashboardNotices($model, $realm));
+			}
 		}
 
 		ksort($tabs);
 
-		$this->render('dashboard', array('model' => $model, 'tabs' => $tabs, 'stat' => $stat));
+		$this->render('dashboard', array('model' => $model, 'tabs' => $tabs, 'stat' => $stat, 'notices' => $notices));
 	}
 
 	public function actionRenderDashboardViewTab($viewPath)

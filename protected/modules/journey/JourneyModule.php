@@ -73,7 +73,8 @@ class JourneyModule extends WebModule
 					'viewPath' => 'modules.journey.views.backend._view-organization-journey',
 				);
 			}
-			if (Yii::app()->user->isSuperAdmin || (Yii::app()->user->isAdmin && Yii::app()->user->isSensitiveDataAdmin)) {
+			// if (Yii::app()->user->isSuperAdmin || (Yii::app()->user->isAdmin && Yii::app()->user->isSensitiveDataAdmin)) {
+			if (HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'custom', 'action' => (object)['id' => 'admin']]) && Yii::app()->user->getState('accessSensitiveData')) {
 				$tabs['journey'][] = array(
 					'key' => 'funding',
 					'title' => 'Funding',
@@ -97,6 +98,13 @@ class JourneyModule extends WebModule
 
 	public function getOrganizationActions($model, $realm = 'backend')
 	{
+		$actions['individual'][] = array(
+			'visual' => 'primary',
+			'label' => 'Add New',
+			'title' => 'Add a new individual to this company.',
+			'url' => Yii::app()->controller->createUrl('/individualOrganization/create', array('organizationCode' => $model->code, 'realm' => $realm)),
+		);
+
 		$actions['funding'][] = array(
 			'visual' => 'primary',
 			'label' => 'Add New',
@@ -221,7 +229,7 @@ class JourneyModule extends WebModule
 				);
 
 				break;
-				
+
 			case 'backendNavDev':
 
 				return array(

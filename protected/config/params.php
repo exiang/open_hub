@@ -12,7 +12,7 @@ return array(
 	'backendLanguages' => envKeySplit(getenv('BACKEND_LANGUAGES', 'en:English;ms:Bahasa Melayu')),
 	'autoLanguageLink' => filter_var(getenv('LANGUAGE_AUTO_LINK', false), FILTER_VALIDATE_BOOLEAN),
 
-	'rolesCanAccessBackend' => require(dirname(__FILE__) . '/role.php'),
+	// 'rolesCanAccessBackend' => require(dirname(__FILE__) . '/role.php'),
 
 	// cross-origin resource sharing
 	'allowedDomains' => require(dirname(__FILE__) . '/cors.php'),
@@ -115,4 +115,6 @@ return array(
 	'layoutParams' => require(dirname(__FILE__) . '/layoutParams.php'),
 
 	'secureFiles' => require(dirname(__FILE__) . '/secureFiles.php'),
+
+	'moduleDisableNoneCore' => filter_var(getenv('MODULE_DISABLE_NONE_CORE', false), FILTER_VALIDATE_BOOLEAN),
 );

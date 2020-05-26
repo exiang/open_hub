@@ -14,14 +14,14 @@ $this->breadcrumbs = array(
 		 	<div class="row">
 			<div class="col-sm-6">
 				<div class="widget style1 navy-bg padding-md">
-					<a href="<?php echo $this->createUrl('organization/overview'); ?>" class="text-white"><span><i class="fa fa-briefcase"></i> Company</span>
+					<a href="<?php echo $this->createUrl('organization/overview'); ?>" class="text-white"><span><i class="fa fa-briefcase"></i> <?php echo Yii::t('backend', 'Organization')?></span>
 					<h3 class="font-bold"><?php echo $stat['totalOrganizations']; ?></h3>
 					</a>
 				</div>
 			</div>
 			<div class="col-sm-6">
 				<div class="widget style1 padding-md">
-					<a href="<?php echo $this->createUrl('individual/admin'); ?>" class=""><span><i class="fa fa-user"></i> Individual</span>
+					<a href="<?php echo $this->createUrl('individual/admin'); ?>" class=""><span><i class="fa fa-user"></i> <?php echo Yii::t('backend', 'Individual')?></span>
 					<h3 class="font-bold"><?php echo $stat['totalIndividuals']; ?></h3>
 					</a>
 				</div>
@@ -39,7 +39,7 @@ $this->breadcrumbs = array(
 		
 	</div>	
 
-	<a href="http://bit.ly/2odDCWm" class="btn btn-block btn-warning" target="_blank"><i class="fa fa-book text-primary"></i> Need Help?</a>
+	<a href="http://bit.ly/2odDCWm" class="btn btn-block btn-warning" target="_blank"><i class="fa fa-book text-primary"></i> <?php echo Yii::t('backend', 'Need Help?') ?></a>
 	
 	<div class="margin-bottom-lg">&nbsp;</div>
 </div>
@@ -55,7 +55,13 @@ $this->breadcrumbs = array(
 <!-- Tab panes -->
 <div class="tab-content">
 	<div role="tabpanel" class="tab-pane white-bg padding-md" id="welcome" data-url-view="">
+		<div class="flashNotices">
+		<?php foreach ($notices as $notice):?>
+			<?php echo Notice::inline($notice['message'], !empty($notice['type']) ? $notice['type'] : Notice_INFO, true, false, true); ?>
+		<?php endforeach; ?>
+		</div>
 		<p class="margin-top-lg margin-bottom-3x">Welcome to <?php echo Yii::app()->name ?> Backend</p>
+		
 	</div>
 <?php foreach ($tabs as $tabModuleKey => $tabModules) : ?><?php foreach ($tabModules as $tabModule) : ?>
     <div role="tabpanel" class="tab-pane white-bg padding-md" id="<?php echo $tabModule['key'] ?>" data-url-view="<?php echo $this->createUrl('backend/renderDashboardViewTab', array('viewPath' => $tabModule['viewPath'])) ?>">

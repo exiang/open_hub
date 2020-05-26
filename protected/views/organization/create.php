@@ -8,7 +8,10 @@ if ($realm == 'backend') {
 	);
 
 	$this->menu = array(
-		array('label' => Yii::t('app', 'Manage Organization'), 'url' => array('/organization/admin')),
+		array(
+			'label' => Yii::t('app', 'Manage Organization'), 'url' => array('/organization/admin'),
+			'visible' => HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), Yii::app()->controller, 'admin')
+		),
 	);
 } elseif ($realm == 'cpanel') {
 	$this->breadcrumbs = array(
@@ -22,8 +25,8 @@ if ($realm == 'backend') {
 
     <section>
         <div class="px-8 py-6 shadow-panel">
-            <h2>Create Company</h2>
-            <p>People on entrepreneur ecosystem will get to know you with this information</p>
+            <h2><?php echo Yii::t('app', 'Create Organization')?></h2>
+            <p><?php echo Yii::t('app', 'People on entrepreneur ecosystem will get to know you with this information')?></p>
             <div>
                 <?php $this->renderPartial('_formCpanel', array('model' => $model)); ?>
             </div>

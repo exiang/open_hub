@@ -53,9 +53,10 @@ class EventRegistrationController extends Controller
 				'users' => array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create', 'update', 'admin' and 'delete' actions
-				'actions' => array('list', 'view', 'create', 'update', 'admin', 'housekeeping', 'housekeepingConfirmed', 'bulkInsert', 'bulkInsertConfirmed'),
+				'actions' => array('list', 'view', 'create', 'update', 'admin', 'housekeeping', 'housekeepingConfirmed', 'bulkInsert', 'delete'),
 				'users' => array('@'),
-				'expression' => '$user->isSuperAdmin==true || $user->isAdmin==true',
+				// 'expression' => '$user->isSuperAdmin==true || $user->isAdmin==true',
+				'expression' => 'HUB::roleCheckerAction(Yii::app()->user->getState("rolesAssigned"), Yii::app()->controller)',
 			),
 			array('deny',  // deny all users
 				'users' => array('*'),
@@ -110,6 +111,7 @@ class EventRegistrationController extends Controller
 	public function actionCreate()
 	{
 		$model = new EventRegistration();
+		$model->event_vendor_code = 'manual';
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -386,8 +388,22 @@ class EventRegistrationController extends Controller
 		$this->render('bulkInsert', array('model' => $model, 'events' => $events, 'settingTemplateFile' => $settingTemplateFile));
 	}
 
-	public function actionBulkInsertConfirmed()
+	public function actionDelete($id, $returnUrl = '')
 	{
+		$this->loadModel($id)->delete();
+
+		if (empty($returnUrl) && !empty($_POST['returnUrl'])) {
+			$returnUrl = $_POST['returnUrl'];
+		}
+
+		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+		if (!isset($_GET['ajax'])) {
+			$this->redirect(isset($returnUrl) ? $returnUrl : array('admin'));
+		}
+
+		if (!empty($returnUrl)) {
+			$this->redirect($returnUrl);
+		}
 	}
 
 	/**
@@ -424,7 +440,8 @@ class EventRegistrationController extends Controller
 
 		ksort($tabs);
 
-		if (Yii::app()->user->isDeveloper) {
+		// if (Yii::app()->user->isDeveloper) {
+		if (HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'custom', 'action' => (object)['id' => 'developer']])) {
 			$tabs['eventRegistration'][] = array(
 				'key' => 'meta',
 				'title' => 'Meta <span class="label label-warning">dev</span>',

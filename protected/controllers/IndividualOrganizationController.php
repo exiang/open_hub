@@ -55,7 +55,8 @@ class IndividualOrganizationController extends Controller
 			array('allow', // allow authenticated user to perform 'create', 'update', 'admin' and 'delete' actions
 				'actions' => array('list', 'view', 'create', 'update', 'admin'),
 				'users' => array('@'),
-				'expression' => '$user->isSuperAdmin==true || $user->isAdmin==true',
+				// 'expression' => '$user->isSuperAdmin==true || $user->isAdmin==true',
+				'expression' => 'HUB::roleCheckerAction(Yii::app()->user->getState("rolesAssigned"), Yii::app()->controller)',
 			),
 			array('deny',  // deny all users
 				'users' => array('*'),
@@ -79,7 +80,7 @@ class IndividualOrganizationController extends Controller
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
 	 */
-	public function actionCreate($individualId = '')
+	public function actionCreate($individualId = '', $organizationCode = '')
 	{
 		$this->pageTitle = Yii::t('backend', 'Link Individual to Organization');
 		$model = new IndividualOrganization();
@@ -88,6 +89,9 @@ class IndividualOrganizationController extends Controller
 		// $this->performAjaxValidation($model);
 		if (!empty($individualId)) {
 			$model->individual_id = $individualId;
+		}
+		if (!empty($organizationCode)) {
+			$model->organization_code = $organizationCode;
 		}
 
 		if (isset($_POST['IndividualOrganization'])) {

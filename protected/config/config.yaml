@@ -5,6 +5,11 @@ main:
         -   key: general
             title: "General"
             items:
+                -   var: Yii::app()->controller->getVersion()
+                    title: Running Version
+                    example: 
+                    datatype: string
+                    getter: 'Yii::app()->controller->getVersion()'
                 -   var: name
                     varInstaller: appName
                     file: main.php
@@ -87,6 +92,15 @@ main:
                     default: //openhubd1.mymagic.my
                     datatype: string
                     getter: "Yii::app()->params['baseUrl'];"
+                -   var: params.moduleDisableNoneCore
+                    file: params.php
+                    env: MODULE_DISABLE_NONE_CORE
+                    title: Disable none core modules
+                    hint: Disable none core modules, including some of the default module.
+                    example:
+                    default: false
+                    datatype: boolean
+                    getter: "Yii::app()->params['moduleDisableNoneCore'];"
         -   key: i18n
             title: "Internationalization"
             items:
@@ -777,7 +791,7 @@ main:
                     varInstaller: googleMapApiKey
                     env: GOOGLE_API_KEY
                     title: Google API Key
-                    hint: Required, use to trasnlate address to lat long location etc.
+                    hint: Required, use to translate address to lat long location etc.
                     example: 
                     default: 
                     datatype: string

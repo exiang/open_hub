@@ -8,11 +8,26 @@ $this->breadcrumbs = [
 ];
 
 $this->menu = [
-	['label' => Yii::t('app', 'Manage Event'), 'url' => ['/event/admin']],
-	['label' => Yii::t('app', 'Create Event'), 'url' => ['/event/create']],
-	['label' => Yii::t('app', 'Update Event'), 'url' => ['/event/update', 'id' => $model->id]],
-	['label' => Yii::t('app', 'Bulk Insert Registration'), 'url' => ['/eventRegistration/bulkInsert', 'eventId' => $model->id]],
-	['label' => Yii::t('app', 'Bulk Insert Company'), 'url' => ['/eventOrganization/bulkInsert', 'eventId' => $model->id]],
+	[
+		'label' => Yii::t('app', 'Manage Event'), 'url' => ['/event/admin'],
+		'visible' => HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), Yii::app()->controller, 'admin')
+	],
+	[
+		'label' => Yii::t('app', 'Create Event'), 'url' => ['/event/create'],
+		'visible' => HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), Yii::app()->controller, 'create')
+	],
+	[
+		'label' => Yii::t('app', 'Update Event'), 'url' => ['/event/update', 'id' => $model->id],
+		'visible' => HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), Yii::app()->controller, 'update')
+	],
+	[
+		'label' => Yii::t('app', 'Bulk Insert Registration'), 'url' => ['/eventRegistration/bulkInsert', 'eventId' => $model->id],
+		'visible' => HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'eventRegistration', 'action' => (object)['id' => 'bulkInsert']])
+	],
+	[
+		'label' => Yii::t('app', 'Bulk Insert Organization'), 'url' => ['/eventOrganization/bulkInsert', 'eventId' => $model->id],
+		'visible' => HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'eventOrganization', 'action' => (object)['id' => 'bulkInsert']])
+	],
 	//array('label'=>Yii::t('app','Delete Event'), 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->id), 'csrf'=>Yii::app()->request->enableCsrfValidation, 'confirm'=>Yii::t('core', 'Are you sure you want to delete this item?'))),
 ];
 ?>
@@ -105,9 +120,9 @@ $this->menu = [
 			<?php foreach ($model->eventOwners as $eventOwner):?>
 			<tr>
 				<td>
-					<a href="<?php echo $this->createUrl('organization/view', ['id' => $eventOwner->organization->id]); ?>"><?php echo $eventOwner->organization->title; ?></a><?php if(!empty($eventOwner->department)): ?> \ <?php echo $eventOwner->department; ?><?php endif; ?>
+					<a href="<?php echo $this->createUrl('organization/view', ['id' => $eventOwner->organization->id]); ?>"><?php echo $eventOwner->organization->title; ?></a><?php if (!empty($eventOwner->department)): ?> \ <?php echo $eventOwner->department; ?><?php endif; ?>
 					<span class="label label-default label-sm">&nbsp;<?php echo $eventOwner->as_role_code ?></span>
-				</td> 
+				</td>
 				<td class="width-lg text-center">
 					<span class="btn-group btn-group-xs"><a class="btn btn-white" href="<?php echo $this->createUrl('/eventOwner/update', ['id' => $eventOwner->id]); ?>">Edit</a> <a class="btn btn-danger" href="<?php echo $this->createUrl('/eventOwner/delete', ['id' => $eventOwner->id]); ?>">Delete</a></span>
 				</td>
@@ -178,7 +193,7 @@ $this->menu = [
 ?>
 
 <span class="pull-right">
-	<span class="label label-primary"><?php echo $totalRegistrations; ?></span> Registered 
+	<span class="label label-primary"><?php echo $totalRegistrations; ?></span> Registered
 	<span class="label label-success"><?php echo $totalAttended; ?></span> Attended
 	<span class="label label-default"><?php echo sprintf('%.2f', ($totalAttended / $totalRegistrations) * 100); ?>%</span> Turnout
 	<span class="margin-left-2x">
@@ -232,7 +247,7 @@ $this->menu = [
 <?php endif; ?>
 
 <?php if ($model->vendor === 'F7'): ?>
- 
+
 	<?php
 		$intake = Intake::model()->findByAttributes(['title' => $model->title]);
 		$forms = $intake->forms;
@@ -268,7 +283,7 @@ $this->menu = [
 <?php endif; ?>
 
 <?php if (!empty($model->eventOrganizations)): ?>
-	<?php 
+	<?php
 		foreach ($model->eventOrganizations as $eo):
 			if (!$eo->organization->is_active):
 				continue;
@@ -276,9 +291,9 @@ $this->menu = [
 			$buffers[$eo->renderAsRoleCode()][] = $eo;
 		endforeach;
 	?>
-	
+
 	<div class="row"><div class="col col-xs-12 margin-top-lg">
-		<h3><?php echo Html::faIcon('fa fa-briefcase'); ?> Company Participants</h3>
+		<h3><?php echo Html::faIcon('fa fa-briefcase'); ?> <?php echo Yii::t('backend', 'Organization Participants') ?></h3>
 
 		<ul class="nav nav-tabs">
 		<?php $j = 0; foreach (array_keys($buffers) as $key): ?>
@@ -290,7 +305,7 @@ $this->menu = [
 		<?php $j = 0; foreach (array_keys($buffers) as $key): ?>
 			<div id="<?php echo md5($key); ?>" class="tab-pane fade <?php echo ($j == 0) ? ' in active' : ''; ?>">
 
-			<?php 
+			<?php
 				$dataProvider = new CArrayDataProvider($buffers[$key], [
 					'id' => 'id',
 					'pagination' => array(
@@ -308,7 +323,7 @@ $this->menu = [
 					'columns' => [
 						['name' => 'id', 'value' => '($row+1) + ($this->grid->dataProvider->pagination->currentPage * $this->grid->dataProvider->pagination->pageSize)', 'headerHtmlOptions' => [], 'header' => 'No'],
 						['header' => 'Name', 'type' => 'raw', 'value' => 'Html::activeThumb($data->organization, \'image_logo\', [\'width\' => 32])', 'headerHtmlOptions' => array('colspan' => '2'), 'htmlOptions' => ['class' => 'text-center']],
-						['header' => '', 'value' => '$data->organization_name', 'headerHtmlOptions' => array('style' => 'display:none')],
+						['header' => '', 'value' => 'Html::link($data->organization_name, Yii::app()->createUrl("/organization/view", array("id"=>$data->organization->id)))', 'type' => 'html', 'headerHtmlOptions' => array('style' => 'display:none')],
 						['header' => 'Join As', 'value' => '$data->renderAsRoleCode()'],
 						['header' => 'Active', 'type' => 'raw', 'value' => 'Html::renderBoolean($data->organization->is_active)', 'htmlOptions' => ['class' => 'text-center']],
 						[
@@ -320,14 +335,14 @@ $this->menu = [
 							'buttons' => [
 								'view' => [
 									'label' => 'View',
-									'url' => 'Yii::app()->createUrl("organization/view", array("id"=>$data->organization_id))',
+									'url' => 'Yii::app()->createUrl("eventOrganization/view", array("id"=>$data->id))',
 									'options' => ['class' => 'btn btn-xs btn-primary'],
 								],
 							],
 						],
 					]
 				]);
-				?>	
+				?>
 
 				<?php /* ?>
 				<table class="table table-bordered table-striped">
@@ -370,7 +385,7 @@ $this->menu = [
 <h3><?php echo Html::faIcon('fa fa-file'); ?> Surveys</h3>
 <div class="well">
 	<form action="<?php echo $this->createUrl('event/sendSurvey', ['eventId' => $model->id]); ?>" method="POST" class="form form-inline">
-		<input type="hidden" name="YII_CSRF_TOKEN" value="<?php echo Yii::app()->request->csrfToken; ?>" /> 
+		<input type="hidden" name="YII_CSRF_TOKEN" value="<?php echo Yii::app()->request->csrfToken; ?>" />
 		<?php echo Html::dropDownList('surveyType', '', HubEvent::getSurveyTypesForeignReferList($model->id), ['class' => 'form-control']); ?>
 		<input type="submit" class="btn btn-sm btn-success" value="Send" />
 	</form>

@@ -78,8 +78,8 @@ $return = array(
 			'noValidationRoutes' => require(dirname(__FILE__) . '/csrfExcludeRegular.php'),
 			// using fnmatch
 			'noValidationRegex' => require(dirname(__FILE__) . '/csrfExcludeRegex.php'),
-			'enableCsrfValidation' => true,
-			'enableCookieValidation' => true,
+			'enableCsrfValidation' => filter_var(getenv('ENABLE_CSRF_VALIDATION', true), FILTER_VALIDATE_BOOLEAN),
+			'enableCookieValidation' => filter_var(getenv('ENABLE_COOKIE_VALIDATION', true), FILTER_VALIDATE_BOOLEAN),
 			'csrfCookie' => array(
 				'domain' => getenv('CSRF_COOKIE', '.mymagic.my'),
 			),
@@ -145,7 +145,7 @@ $return = array(
 					'levels' => 'profile',
 					'report' => 'callstack',
 					'logFile' => 'db.log',
-				),		
+				),
 			),
 		),
 		'esLog' => array(
@@ -216,17 +216,18 @@ $return = array(
 );
 
 $return['modules'] = require dirname(__FILE__) . '/module.php';
-
-$modules_dir = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR;
-$handle = opendir($modules_dir);
-while (false !== ($file = readdir($handle))) {
-	if ($file != '.' && $file != '..' && is_dir($modules_dir . $file)) {
-		$return = CMap::mergeArray($return, include($modules_dir . $file . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'base.php'));
-		$return = CMap::mergeArray($return, include($modules_dir . $file . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'main.base.php'));
-		$return = CMap::mergeArray($return, include($modules_dir . $file . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'main.php'));
+if (!array_key_exists('moduleDisableNoneCore', $return['params']) || (array_key_exists('moduleDisableNoneCore', $return['params']) && $return['params']['moduleDisableNoneCore'] == false)) {
+	$modules_dir = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR;
+	$handle = opendir($modules_dir);
+	while (false !== ($file = readdir($handle))) {
+		if ($file != '.' && $file != '..' && is_dir($modules_dir . $file)) {
+			$return = CMap::mergeArray($return, include($modules_dir . $file . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'base.php'));
+			$return = CMap::mergeArray($return, include($modules_dir . $file . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'main.base.php'));
+			$return = CMap::mergeArray($return, include($modules_dir . $file . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'main.php'));
+		}
 	}
+	closedir($handle);
 }
-closedir($handle);
 
 $return['components']['urlManager']['rules'] = CMap::mergeArray($return['components']['urlManager']['rules'], require(dirname(__FILE__) . '/route.php'));
 

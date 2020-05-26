@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `challenge` (
   KEY `is_publish` (`is_publish`),
   KEY `is_highlight` (`is_highlight`),
   KEY `fk_challenge-owner_organization_id` (`owner_organization_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=17 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -390,7 +390,7 @@ CREATE TABLE IF NOT EXISTS `collection_item` (
   PRIMARY KEY (`id`),
   KEY `ref_id` (`ref_id`),
   KEY `fk_collection_item-collection_sub_id` (`collection_sub_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=54 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -408,7 +408,7 @@ CREATE TABLE IF NOT EXISTS `collection_sub` (
   `date_modified` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_collection-collection_id` (`collection_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=22 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -434,7 +434,7 @@ CREATE TABLE IF NOT EXISTS `comment` (
   KEY `object_key` (`object_key`),
   KEY `creator_user_id` (`creator_user_id`),
   KEY `is_active` (`is_active`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=103 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -822,6 +822,12 @@ CREATE TABLE IF NOT EXISTS `event` (
   `json_extra` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `date_added` int(11) NOT NULL,
   `date_modified` int(11) NOT NULL,
+  `is_survey_enabled` tinyint(1) NOT NULL,
+  `address_line1` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_line2` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_zip` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_city` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_state` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`),
   KEY `country_code` (`address_country_code`),
@@ -829,8 +835,9 @@ CREATE TABLE IF NOT EXISTS `event` (
   KEY `is_paid` (`is_paid_event`),
   KEY `event_group_id` (`event_group_code`),
   KEY `event_group_code` (`event_group_code`,`is_active`),
-  KEY `eventIsActiveIsCancelled` (`is_active`,`is_cancelled`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=63651 ;
+  KEY `eventIsActiveIsCancelled` (`is_active`,`is_cancelled`),
+  KEY `is_survey_enabled` (`is_survey_enabled`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -923,7 +930,7 @@ CREATE TABLE IF NOT EXISTS `event_group` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`),
   UNIQUE KEY `slug` (`slug`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=54 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -966,10 +973,12 @@ CREATE TABLE IF NOT EXISTS `event_owner` (
   `department` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `date_added` int(11) NOT NULL,
   `date_modified` int(11) NOT NULL,
+  `as_role_code` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'owner',
   PRIMARY KEY (`id`),
   UNIQUE KEY `event_id_2` (`event_code`,`organization_code`),
   KEY `event_id` (`event_code`),
-  KEY `organization_id` (`organization_code`)
+  KEY `organization_id` (`organization_code`),
+  KEY `as_role_code` (`as_role_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='organizer of an event' AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -1161,7 +1170,7 @@ CREATE TABLE IF NOT EXISTS `individual` (
   KEY `state_code` (`state_code`),
   KEY `country_code` (`country_code`),
   KEY `full_name` (`full_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=6948 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1493,6 +1502,80 @@ CREATE TABLE IF NOT EXISTS `intake` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `interest`
+--
+
+CREATE TABLE IF NOT EXISTS `interest` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `json_extra` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `date_added` int(11) DEFAULT NULL,
+  `date_modified` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`),
+  KEY `is_active` (`is_active`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `interest_user2cluster`
+--
+
+CREATE TABLE IF NOT EXISTS `interest_user2cluster` (
+  `cluster_id` int(11) DEFAULT NULL,
+  `interest_id` int(11) DEFAULT NULL,
+  UNIQUE KEY `interest_user2cluster` (`interest_id`,`cluster_id`),
+  KEY `fk_interest_user2cluster-cluster_id` (`cluster_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `interest_user2industry`
+--
+
+CREATE TABLE IF NOT EXISTS `interest_user2industry` (
+  `industry_id` int(11) DEFAULT NULL,
+  `interest_id` int(11) DEFAULT NULL,
+  UNIQUE KEY `interest_user2industry` (`interest_id`,`industry_id`),
+  KEY `fk_interest_user2industry-industry_id` (`industry_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `interest_user2sdg`
+--
+
+CREATE TABLE IF NOT EXISTS `interest_user2sdg` (
+  `sdg_id` int(11) DEFAULT NULL,
+  `interest_id` int(11) DEFAULT NULL,
+  UNIQUE KEY `interest_user2sdg` (`interest_id`,`sdg_id`),
+  KEY `fk_interest_user2sdg-sdg_id` (`sdg_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `interest_user2startup_stage`
+--
+
+CREATE TABLE IF NOT EXISTS `interest_user2startup_stage` (
+  `startup_stage_id` int(11) DEFAULT NULL,
+  `interest_id` int(11) DEFAULT NULL,
+  UNIQUE KEY `interest_user2startup_stage` (`interest_id`,`startup_stage_id`),
+  KEY `fk_interest_user2startup_stage-cluster_id` (`startup_stage_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `junk`
 --
 
@@ -1601,7 +1684,7 @@ CREATE TABLE IF NOT EXISTS `meta_item` (
   UNIQUE KEY `meta_structure_id_2` (`meta_structure_id`,`ref_id`),
   KEY `meta_structure_id` (`meta_structure_id`),
   KEY `ref_id` (`ref_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=40435 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1750,7 +1833,7 @@ CREATE TABLE IF NOT EXISTS `organization` (
   KEY `legalform_id` (`legalform_id`),
   KEY `legal_name` (`legal_name`),
   FULLTEXT KEY `title` (`title`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=4124 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1796,7 +1879,7 @@ CREATE TABLE IF NOT EXISTS `organization_funding` (
   KEY `organization_id` (`organization_id`),
   KEY `vc_organization_id` (`vc_organization_id`),
   KEY `is_active` (`is_active`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=472 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2013,7 +2096,7 @@ CREATE TABLE IF NOT EXISTS `product_category` (
   `date_added` int(11) NOT NULL,
   `date_modified` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=12 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2142,7 +2225,7 @@ CREATE TABLE IF NOT EXISTS `resource` (
   KEY `owner` (`owner`(191)),
   KEY `typefor` (`typefor`),
   KEY `is_blocked` (`is_blocked`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=2673 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2190,7 +2273,7 @@ CREATE TABLE IF NOT EXISTS `resource2organization_funding` (
   KEY `resource_id` (`resource_id`),
   KEY `organization_funding_id` (`organization_funding_id`),
   KEY `as_role_code` (`as_role_code`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -7711,7 +7794,10 @@ INSERT INTO `tbl_migration` (`version`, `apply_time`) VALUES
 ('m191209_063937_secured_file_at_sample_table', 1575944580),
 ('m200205_093513_survey_organization_job', 1580895994),
 ('m200206_032717_organization_revenue_funding_addTextNote', 1580959725),
-('m200209_032417_password_hash', 1581218717);
+('m200209_032417_password_hash', 1581218717),
+('m200324_011353_event_survey_enabled', 1585013262),
+('m200324_062436_event_address_breakdown', 1585033364),
+('m200402_083859_event_owner_role', 1585822985);
 
 -- --------------------------------------------------------
 
@@ -8002,6 +8088,40 @@ ALTER TABLE `industry2organization`
 --
 ALTER TABLE `industry_keyword`
   ADD CONSTRAINT `industry_keyword_ibfk_1` FOREIGN KEY (`industry_code`) REFERENCES `industry` (`code`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `interest`
+--
+ALTER TABLE `interest`
+  ADD CONSTRAINT `fk_interest-user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `interest_user2cluster`
+--
+ALTER TABLE `interest_user2cluster`
+  ADD CONSTRAINT `fk_interest_user2cluster-cluster_id` FOREIGN KEY (`cluster_id`) REFERENCES `cluster` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_interest_user2cluster-interest_id` FOREIGN KEY (`interest_id`) REFERENCES `interest` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `interest_user2industry`
+--
+ALTER TABLE `interest_user2industry`
+  ADD CONSTRAINT `fk_interest_user2industry-industry_id` FOREIGN KEY (`industry_id`) REFERENCES `industry` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_interest_user2industry-interest_id` FOREIGN KEY (`interest_id`) REFERENCES `interest` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `interest_user2sdg`
+--
+ALTER TABLE `interest_user2sdg`
+  ADD CONSTRAINT `fk_interest_user2sdg-interest_id` FOREIGN KEY (`interest_id`) REFERENCES `interest` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_interest_user2sdg-sdg_id` FOREIGN KEY (`sdg_id`) REFERENCES `sdg` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `interest_user2startup_stage`
+--
+ALTER TABLE `interest_user2startup_stage`
+  ADD CONSTRAINT `fk_interest_user2startup_stage-cluster_id` FOREIGN KEY (`startup_stage_id`) REFERENCES `startup_stage` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_interest_user2startup_stage-interest_id` FOREIGN KEY (`interest_id`) REFERENCES `interest` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `legalform`

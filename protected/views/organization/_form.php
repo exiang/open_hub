@@ -64,7 +64,7 @@
 		<?php echo $form->bsLabelEx2($model, 'legal_name'); ?>
 		<div class="col-sm-10">
 			<?php echo $form->bsTextField($model, 'legal_name'); ?>
-			<p class="help-block">How should we address your company legally for purposes like invoice and etc</p>
+			<p class="help-block"><?php echo Yii::t('app', 'How should we address your company/organization legally for purposes like invoice and etc')?></p>
 			<?php echo $form->bsError($model, 'legal_name'); ?>
 		</div>
 	</div>
@@ -139,15 +139,15 @@
 		</div>
 	</div>
 	<?php endif; ?>
-	
-	<?php 
+
+	<?php
 		/*
 		 * hide the section from view instead
 		 * or else the data will become null when update for those user that do not have role accessBackend
 		 */
 	?>
-	<div class="<?php echo Yii::app()->user->accessBackend && Yii::app()->user->isSuperAdmin ? '' : 'hide' ?>">
-
+	<div class="<?php echo Yii::app()->user->accessBackend && HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'custom', 'action' => (object)['id' => 'superAdmin']]) ? '' : 'hide' ?>">
+	
 	<div class="form-group <?php echo $model->hasErrors('is_active') ? 'has-error' : '' ?>">
 		<?php echo $form->bsLabelEx2($model, 'is_active'); ?>
 		<div class="col-sm-10">
@@ -191,7 +191,8 @@
 		</div>
 	</div>
 
-	<?php if (Yii::app()->user->accessBackend && Yii::app()->user->isSuperAdmin):?>
+
+	<?php if (Yii::app()->user->accessBackend && HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'custom', 'action' => (object)['id' => 'superAdmin']])):?>
 	<div class="form-group <?php echo $model->hasErrors('tag_backend') ? 'has-error' : '' ?>">
 		<?php echo $form->bsLabelEx2($model, 'tag_backend'); ?>
 		<div class="col-sm-10">
@@ -201,7 +202,8 @@
 	</div>
 	<?php endif; ?>
 
-	<?php if (Yii::app()->user->accessBackend && Yii::app()->user->isDeveloper):?>
+	<?php // if (Yii::app()->user->accessBackend && Yii::app()->user->isDeveloper):?>
+	<?php if (Yii::app()->user->accessBackend && HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'custom', 'action' => (object)['id' => 'developer']])):?>
 	<?php echo Notice::inline(Yii::t('notice', 'Meta Data Only accessible by developer role'), Notice_WARNING) ?>
 	<?php $this->renderPartial('../../yeebase/views/metaStructure/_sharedForm', array('form' => $form, 'model' => $model)); ?>
 	<?php endif; ?>
@@ -209,7 +211,7 @@
 
 	<div class="form-group">
 		<div class="pull-right margin-top-lg">
-			<?php echo $form->bsBtnSubmit($model->isNewRecord ? Yii::t('core', 'Create Company') : Yii::t('core', 'Save')); ?>
+			<?php echo $form->bsBtnSubmit($model->isNewRecord ? Yii::t('core', 'Create Organization') : Yii::t('core', 'Save')); ?>
 		</div>
 	</div>
 
@@ -217,7 +219,7 @@
 
 </div>
 
-<?php 
+<?php
 Yii::app()->clientScript->registerScript('formjs', "
 $(document).ready(function(){
 	$('#btn-rm-logo').on('click', function(){

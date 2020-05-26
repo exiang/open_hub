@@ -8,9 +8,18 @@ $this->breadcrumbs = array(
 );
 
 $this->menu = array(
-	array('label' => Yii::t('app', 'Create EventRegistration'), 'url' => array('/eventRegistration/create')),
-	array('label' => Yii::t('app', 'Bulk Insert'), 'url' => array('/eventRegistration/bulkInsert')),
-	array('label' => Yii::t('app', 'Housekeeping'), 'url' => array('/eventRegistration/housekeeping')),
+	array(
+		'label' => Yii::t('app', 'Create Event Registration'), 'url' => array('/eventRegistration/create'),
+		'visible' => HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), Yii::app()->controller, 'create')
+	),
+	array(
+		'label' => Yii::t('app', 'Bulk Insert'), 'url' => array('/eventRegistration/bulkInsert'),
+		'visible' => HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), Yii::app()->controller, 'bulkInsert')
+	),
+	array(
+		'label' => Yii::t('app', 'Housekeeping'), 'url' => array('/eventRegistration/housekeeping'),
+		'visible' => HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), Yii::app()->controller, 'housekeeping')
+	),
 );
 
 Yii::app()->clientScript->registerScript('search', "
@@ -44,15 +53,20 @@ $('.search-form form').submit(function(){
 	'dataProvider' => $model->search(),
 	'filter' => $model,
 	'columns' => array(
-		// array('name'=>'id', 'cssClassExpression'=>'id', 'value'=>$data->id, 'headerHtmlOptions'=>array('class'=>'id')),
+		array('name' => 'id', 'cssClassExpression' => 'id', 'value' => $data->id, 'headerHtmlOptions' => array('class' => 'id')),
 		'registration_code',
-		array('name' => 'event_code', 'cssClassExpression' => 'foreignKey', 'value' => '$data->event->title', 'headerHtmlOptions' => array('class' => 'foreignKey'), 'filter' => Event::model()->getForeignReferList(false, true)),
+		array('name' => 'event_code', 'cssClassExpression' => 'foreignKey', 'value' => 'Html::link($data->event->title, Yii::app()->createUrl("/event/view", array("id"=>$data->event->id)))', 'type' => 'html', 'headerHtmlOptions' => array('class' => 'foreignKey'), 'filter' => Event::model()->getForeignReferList(false, true)),
 		'email',
 		'full_name',
 		array('name' => 'is_attended', 'cssClassExpression' => 'boolean', 'type' => 'raw', 'value' => 'Html::renderBoolean($data->is_attended)', 'headerHtmlOptions' => array('class' => 'boolean'), 'filter' => $model->getEnumBoolean()),
 
 		array(
 			'class' => 'application.components.widgets.ButtonColumn',
-			'buttons' => array('delete' => array('visible' => false)),		),
+			'buttons' => array(
+				'view' => array('visible' => function () { return HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), Yii::app()->controller, 'view'); }),
+				'update' => array('visible' => function () { return HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), Yii::app()->controller, 'update'); }),
+				'delete' => array('visible' => false)
+			),
+		),
 	),
 )); ?>

@@ -9,11 +9,16 @@ class OpenHubModule extends WebModule
 	public $organizationId;
 	public $var1;
 	public $var2;
+	public $githubOrganization;
+	public $githubRepoName;
+	public $githubReleaseUrl;
 
 	// this method is called when the module is being created
 	// you may place code here to customize the module
 	public function init()
 	{
+		require_once dirname(__FILE__) . '/vendor/autoload.php';
+
 		$this->setComponents(array(
 			'request' => array(
 				'class' => 'HttpRequest',
@@ -119,7 +124,7 @@ class OpenHubModule extends WebModule
 	public function getNavItems($controller, $forInterface)
 	{
 		//for cpanel
-		//cpanelNavDashboard , cpanelNavSetting, cpanelNavCompany, cpanelNavCompanyInformation
+		//cpanelNavDashboard , cpanelNavSetting, cpanelNavOrganization, cpanelNavOrganizationInformation
 		switch ($forInterface) {
 			case 'cpanelNavDashboard': {
 					return array(
@@ -136,9 +141,9 @@ class OpenHubModule extends WebModule
 				}
 			case 'cpanelNavSetting': {
 				}
-			case 'cpanelNavCompany': {
+			case 'cpanelNavOrganization': {
 				}
-			case 'cpanelNavCompanyInformation': {
+			case 'cpanelNavOrganizationInformation': {
 				}
 		}
 	}
@@ -196,6 +201,16 @@ class OpenHubModule extends WebModule
 
 	public function getBackendAdvanceSearch($controller, $searchFormModel)
 	{
+	}
+
+	public function getDashboardNotices($model, $realm = 'backend')
+	{
+		$updateInfo = HubOpenHub::getUpdateInfo();
+		if ($updateInfo['canUpdate']) {
+			$notices[] = array('message' => Yii::t('openHub', 'System update: latest release  {versionReleased} is available. <a href="{urlDownload}" class="btn btn-xs btn-primary">Download</a>', array('{versionReleased}' => $updateInfo['latestRelease']['tag_name'], '{urlDownload}' => HubOpenHub::getUrlLatestRelease())), 'type' => Notice_WARNING);
+		}
+
+		return $notices;
 	}
 
 	public function doOrganizationsMerge($source, $target)

@@ -28,12 +28,12 @@ if ($realm == 'backend') {
                     <span><i class="fa fa-angle-down" aria-hidden="true"></i></span>
                 </a></span></h3>
  	<a href="<?php echo Yii::app()->createUrl('/organization/select') ?>">
-		<h4 class="change-org">Change Company</h4>
+		<h4 class="change-org"><?php echo Yii::t('app', 'Change Organization') ?></h4>
 	</a>
  </div>
  <div id="content-services">
  <div class="header-org" class="margin-top-lg">
-		<?php 
+		<?php
 
 			$this->widget('zii.widgets.CMenu', array(
 			'items' => array(
@@ -46,26 +46,6 @@ if ($realm == 'backend') {
 		));
 		 ?>
  </div>
-<!-- <div id="content-services">
-        <div class="get-started">
-            <h3>Getting Started</h3>
-            <div class="guide-link">
-                <ul>
-                    <li><a id="abt-ctrl" href="#">About MaGIC Central</a></li>
-                    <li><a id="abt-dash" href="#">About MaGIC Central Dashboard</a></li>
-                    <li><a id="create-acc" href="#">Creating and Manage Account</a></li>
-                    <li><a id="what-org" href="#">What is a Company?</a></li>
-                    <li><a id="create-org" href="#">Creating and Manage Company</a></li>
-                    <li><a href="#">Join Existing Company</a></li>
-                    <li><a href="#">What is Product?</a></li>
-                    <li><a href="#">What is Services?</a></li>
-                    <li><a href="#">What is Activity Feed?</a></li>
-                    <li><a href="#">Manage Activity History</a></li>
-                </ul>
-            </div>
-        </div>
-        
-</div> -->
 </div>
 </div>
 <div class="wrapper wrapper-content content-bg content-left-padding">
@@ -84,8 +64,14 @@ if ($realm == 'backend') {
 		array(
 			'class' => 'application.components.widgets.ButtonColumn',
 			'buttons' => array(
-				'view' => array('url' => 'Yii::app()->controller->createUrl(\'product/view\', array(\'id\'=>$data->id, \'realm\'=>$_GET[realm]))'),
-				'update' => array('url' => 'Yii::app()->controller->createUrl(\'product/update\', array(\'id\'=>$data->id, \'realm\'=>$_GET[realm]))'),
+				'view' => array(
+					'url' => 'Yii::app()->controller->createUrl(\'product/view\', array(\'id\'=>$data->id, \'realm\'=>$_GET[realm]))',
+					'visible' => function () { return HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'product', 'action' => (object)['id' => 'view']]); }
+				),
+				'update' => array(
+					'url' => 'Yii::app()->controller->createUrl(\'product/update\', array(\'id\'=>$data->id, \'realm\'=>$_GET[realm]))',
+					'visible' => function () { return HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'product', 'action' => (object)['id' => 'update']]); }
+				),
 				'delete' => array('visible' => false)
 			),
 		),

@@ -54,7 +54,8 @@ class OrganizationFundingController extends Controller
 			array('allow', // allow authenticated user to perform 'create', 'update', 'admin' and 'delete' actions
 				'actions' => array('list', 'view', 'create', 'update', 'admin', 'delete'),
 				'users' => array('@'),
-				'expression' => '$user->isSuperAdmin==true || ($user->isAdmin==true && $user->isSensitiveDataAdmin==true)',
+				// 'expression' => '$user->isSuperAdmin==true || ($user->isAdmin==true && $user->isSensitiveDataAdmin==true)',
+				'expression' => 'HUB::roleCheckerAction(Yii::app()->user->getState("rolesAssigned"), Yii::app()->controller)',
 			),
 			array('deny',  // deny all users
 				'users' => array('*'),
@@ -79,18 +80,18 @@ class OrganizationFundingController extends Controller
 		$actions = [];
 		$user = User::model()->findByPk(Yii::app()->user->id);
 
-		$activeServices = HUB::getAllActiveServices();
-		foreach ($activeServices as $service) {
+		$modules = YeeModule::getActiveParsableModules();
+		foreach ($modules as $moduleKey => $moduleParams) {
 			// for backend only
 			if (Yii::app()->user->accessBackend && $realm == 'backend') {
-				if (method_exists(Yii::app()->getModule($service->slug), 'getOrganizationFundingActions')) {
-					$actions = array_merge($actions, (array) Yii::app()->getModule($service->slug)->getOrganizationFundingActions($model, 'backend'));
+				if (method_exists(Yii::app()->getModule($moduleKey), 'getOrganizationFundingActions')) {
+					$actions = array_merge($actions, (array) Yii::app()->getModule($moduleKey)->getOrganizationFundingActions($model, 'backend'));
 				}
 			}
 			// for frontend only
 			if (Yii::app()->user->accessCpanel && $realm == 'cpanel') {
-				if (method_exists(Yii::app()->getModule($service->slug), 'getOrganizationFundingActions')) {
-					$actions = array_merge($actions, (array) Yii::app()->getModule($service->slug)->getOrganizationFundingActions($model, 'cpanel'));
+				if (method_exists(Yii::app()->getModule($moduleKey), 'getOrganizationFundingActions')) {
+					$actions = array_merge($actions, (array) Yii::app()->getModule($moduleKey)->getOrganizationFundingActions($model, 'cpanel'));
 				}
 			}
 		}
@@ -279,7 +280,8 @@ class OrganizationFundingController extends Controller
 
 		ksort($tabs);
 
-		if (Yii::app()->user->isDeveloper) {
+		// if (Yii::app()->user->isDeveloper) {
+		if (HUB::roleCheckerAction(Yii::app()->user->getState('rolesAssigned'), (object)['id' => 'custom', 'action' => (object)['id' => 'developer']])) {
 			$tabs['organizationFunding'][] = array(
 				'key' => 'meta',
 				'title' => 'Meta <span class="label label-warning">dev</span>',
